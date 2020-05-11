@@ -15,9 +15,12 @@
 
 """Data config."""
 import functools
+
+import tensorflow.compat.v1 as tf
 from absl import flags
 from monty.collections import AttrDict
-import tensorflow.compat.v1 as tf
+
+from stacked_capsule_autoencoders.capsules.configs.westdataset import make_westworld_dataset_from_folder
 from stacked_capsule_autoencoders.capsules.data import constellation
 from stacked_capsule_autoencoders.capsules.data import image
 from stacked_capsule_autoencoders.capsules.data import preprocess
@@ -27,56 +30,58 @@ flags.DEFINE_integer('canvas_size', 28, 'Canvas size.')
 
 
 def get(config):
-  """Returns the dataset."""
+    """Returns the dataset."""
 
-  if config.dataset == 'mnist':
-    dataset = make_mnist(config)
-  elif config.dataset == 'constellation':
-    dataset = make_constellation(config)
+    if config.dataset == 'mnist':
+        dataset = make_mnist(config)
+    elif config.dataset == 'constellation':
+        dataset = make_constellation(config)
+    elif config.dataset == 'westworld':
+        dataset = make_westworld_dataset_from_folder(config)
 
-  return dataset
+    return dataset
 
 
 def make_mnist(config):
-  """Creates the MNIST dataset."""
+    """Creates the MNIST dataset."""
 
-  def to_float(x):
-    return tf.to_float(x) / 255.
+    def to_float(x):
+        return tf.to_float(x) / 255.
 
-  transform = [to_float]
+    transform = [to_float]
 
-  if config.canvas_size != 28:
-    transform.append(functools.partial(preprocess.pad_and_shift,
-                                       output_size=config.canvas_size,
-                                       shift=None))
+    if config.canvas_size != 28:
+        transform.append(functools.partial(preprocess.pad_and_shift,
+                                           output_size=config.canvas_size,
+                                           shift=None))
 
-  batch_size = config.batch_size
-  res = AttrDict(
-      trainset=image.create(
-          'mnist', subset='train', batch_size=batch_size, transforms=transform),
-      validset=image.create(
-          'mnist', subset='test', batch_size=batch_size, transforms=transform))
+    batch_size = config.batch_size
+    res = AttrDict(
+        trainset=image.create(
+            'mnist', subset='train', batch_size=batch_size, transforms=transform),
+        validset=image.create(
+            'mnist', subset='test', batch_size=batch_size, transforms=transform))
 
-  return res
+    return res
 
 
 def make_constellation(config):
-  """Creates the constellation dataset."""
+    """Creates the constellation dataset."""
 
-  dataset = constellation.create(
-      batch_size=config.batch_size,
-      shuffle_corners=True,
-      gaussian_noise=.0,
-      drop_prob=0.5,
-      which_patterns=[[0], [1], [0]],
-      rotation_percent=180 / 360.,
-      max_scale=3.,
-      min_scale=3.,
-      use_scale_schedule=False,
-      schedule_steps=0,
-  )
+    dataset = constellation.create(
+        batch_size=config.batch_size,
+        shuffle_corners=True,
+        gaussian_noise=.0,
+        drop_prob=0.5,
+        which_patterns=[[0], [1], [0]],
+        rotation_percent=180 / 360.,
+        max_scale=3.,
+        min_scale=3.,
+        use_scale_schedule=False,
+        schedule_steps=0,
+    )
 
-  # data is created online, so there is no point in having
-  # a separate dataset for validation
-  res = AttrDict(trainset=dataset, validset=dataset)
-  return res
+    # data is created online, so there is no point in having
+    # a separate dataset for validation
+    res = AttrDict(trainset=dataset, validset=dataset)
+    return res
