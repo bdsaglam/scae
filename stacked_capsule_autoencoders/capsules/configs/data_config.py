@@ -34,6 +34,8 @@ def get(config):
 
     if config.dataset == 'mnist':
         dataset = make_mnist(config)
+    elif config.dataset == 'unsupervised-mnist':
+        dataset = make_unmnist(config)
     elif config.dataset == 'constellation':
         dataset = make_constellation(config)
     elif config.dataset == 'westworld':
@@ -62,6 +64,29 @@ def make_mnist(config):
         validset=image.create(
             'mnist', subset='test', batch_size=batch_size, transforms=transform))
 
+    return res
+
+
+def make_unmnist(config):
+    """Creates the MNIST dataset."""
+
+    def to_float(x):
+        return tf.to_float(x) / 255.
+
+    transform = [to_float]
+
+    if config.canvas_size != 28:
+        transform.append(functools.partial(preprocess.pad_and_shift,
+                                           output_size=config.canvas_size,
+                                           shift=None))
+
+    batch_size = config.batch_size
+    trainset = image.create('mnist', subset='train', batch_size=batch_size, transforms=transform)
+    del trainset["label"]
+    validset = image.create('mnist', subset='test', batch_size=batch_size, transforms=transform)
+    del validset["label"]
+
+    res = AttrDict(trainset=trainset, validset=validset)
     return res
 
 
