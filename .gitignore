@@ -1,4 +1,5 @@
 stacked_capsule_autoencoders/checkpoints
+checkpoints/
 
 # PyCharm files
 .idea

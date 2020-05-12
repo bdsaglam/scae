@@ -311,7 +311,7 @@ class ImageAutoencoder(Model):
           self._n_classes,
           labeled=data.get('labeled', None))
 
-    res.best_cls_acc = tf.maximum(res.prior_cls_acc, res.posterior_cls_acc)
+      res.best_cls_acc = tf.maximum(res.prior_cls_acc, res.posterior_cls_acc)
 
     res.primary_caps_l1 = math_ops.flat_reduce(res.primary_presence)
 

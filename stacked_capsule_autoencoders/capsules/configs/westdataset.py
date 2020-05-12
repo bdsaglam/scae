@@ -1,3 +1,4 @@
+import math
 import pathlib
 
 import numpy as np
@@ -34,13 +35,12 @@ def make_westworld_dataset_from_folder(config):
 
     def postpro(batch_img):
         batch_img.set_shape((batch_size, obs_size, obs_size, 1))
-        return {"image": batch_img,
-                "label": tf.ones((batch_size,), dtype=tf.int64)}
+        return {"image": batch_img}
 
     image_dir = data_dir / 'images'
     image_files = np.array(list(image_dir.glob('**/*.jpg')))
     indices = np.random.permutation(image_files.shape[0])
-    train_idx, val_idx = indices[:80], indices[80:]
+    train_idx, val_idx = split(indices, (0.8, 0.2))
     train_files = image_files[train_idx]
     val_files = image_files[val_idx]
 
@@ -64,3 +64,19 @@ def make_westworld_dataset_from_folder(config):
     )
 
     return res
+
+
+def split(sequence, rates):
+    N = len(sequence)
+    total = sum(rates)
+    ratios = [rate / total for rate in rates]
+
+    break_points = [0]
+    for ratio in ratios:
+        break_points.append(break_points[-1] + ratio)
+
+    indices = [math.floor(i * N) for i in break_points]
+    indice_pairs = [(start, end) for start, end in zip(indices[:-1], indices[1:])]
+
+    for start, end in indice_pairs:
+        yield sequence[start:end]
