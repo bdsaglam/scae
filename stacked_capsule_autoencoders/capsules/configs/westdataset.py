@@ -38,7 +38,7 @@ def make_westworld_dataset_from_folder(config):
     n_channels = config.n_channels
 
     def postpro(batch_img):
-        batch_img.set_shape((batch_size, obs_size, obs_size, 1))
+        batch_img.set_shape((batch_size, obs_size, obs_size, n_channels))
         return {"image": batch_img}
 
     image_dir = data_dir / 'images'
