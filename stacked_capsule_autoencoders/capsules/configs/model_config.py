@@ -30,13 +30,13 @@ flags.DEFINE_float('lr', 1e-4, 'Learning rate.')
 flags.DEFINE_boolean('use_lr_schedule', True, 'Uses learning rate schedule'
                      ' if True.')
 
+flags.DEFINE_integer('n_channels', 1, 'Number of input channels.')
+
 flags.DEFINE_integer('template_size', 11, 'Template size.')
 flags.DEFINE_integer('n_part_caps', 16, 'Number of part capsules.')
 flags.DEFINE_integer('n_part_caps_dims', 6, 'Part caps\' dimensionality.')
 flags.DEFINE_integer('n_part_special_features', 16, 'Number of special '
                      'features.')
-
-flags.DEFINE_integer('n_channels', 1, 'Number of input channels.')
 
 flags.DEFINE_integer('n_obj_caps', 10, 'Number of object capsules.')
 flags.DEFINE_integer('n_obj_caps_params', 32, 'Dimensionality of object caps '

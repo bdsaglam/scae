@@ -10,7 +10,10 @@ flags.DEFINE_string('data_dir', '~/westworld-data',
                     'Data directory for WestWorld dataset.')
 
 
-def create_image_dataset_from_files(image_files, image_size=None, shuffle=False, buffer_size=1024):
+def create_image_dataset_from_files(image_files,
+                                    image_size=None,
+                                    shuffle=False,
+                                    buffer_size=1024):
     image_filepaths = [str(fp) for fp in image_files]
 
     ds = tf.data.Dataset.from_tensor_slices((image_filepaths,))
@@ -32,6 +35,7 @@ def make_westworld_dataset_from_folder(config):
     data_dir = pathlib.Path(config.data_dir)
     obs_size = config.canvas_size
     batch_size = config.batch_size
+    n_channels = config.n_channels
 
     def postpro(batch_img):
         batch_img.set_shape((batch_size, obs_size, obs_size, 1))
@@ -46,14 +50,16 @@ def make_westworld_dataset_from_folder(config):
 
     tds = create_image_dataset_from_files(train_files,
                                           image_size=(obs_size, obs_size))
-    tds = tds.map(lambda image: tf.image.rgb_to_grayscale(image))
+    if n_channels == 1:
+        tds = tds.map(lambda image: tf.image.rgb_to_grayscale(image))
     tds = tds.map(lambda image: tf.to_float(image) / 255.)
     tds = tds.repeat().batch(batch_size)
     tds = tds.map(postpro)
 
     vds = create_image_dataset_from_files(val_files,
                                           image_size=(obs_size, obs_size))
-    vds = vds.map(lambda image: tf.image.rgb_to_grayscale(image))
+    if n_channels == 1:
+        vds = vds.map(lambda image: tf.image.rgb_to_grayscale(image))
     vds = vds.map(lambda image: tf.to_float(image) / 255.)
     vds = vds.repeat().batch(batch_size)
     vds = vds.map(postpro)
