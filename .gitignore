@@ -5,6 +5,7 @@ checkpoints/
 .idea
 
 # Jupyter notebook checkpoints
+notebooks/
 *.ipynb_checkpoints
 
 # Byte-compiled / optimized / DLL files
